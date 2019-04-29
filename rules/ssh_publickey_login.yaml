@@ -1,0 +1,9 @@
+---
+name: ssh_publickey_login
+interval: 30
+window: 30
+message_type: syslog
+match_type: field_regex
+match_field: message
+match_value: '(\S+) sshd.*Accepted publickey for (\S+) from (\S+)'
+summary: 'Login with publickey on {0} by {1} from {2}'

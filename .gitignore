@@ -1,0 +1,6 @@
+.vscode
+.eggs
+*.pyc
+*.egg-info
+config/config.yaml
+logalert/

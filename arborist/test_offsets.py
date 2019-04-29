@@ -44,7 +44,7 @@ if __name__ == "__main__":
       consumer.assign([partition])
       current_timestamp = start_time
       running = True
-      while current_timestamp < end_time and running == True:
+      while running == True:
         msg = consumer.poll()
         if not msg.error():
             try:
@@ -56,7 +56,10 @@ if __name__ == "__main__":
                 LOGGER.exception(e)
                 exit(1)
 
-            messages.append(data)
+            if current_timestamp < end_time:
+                messages.append(data)
+            else:
+                running = False
 
         elif msg.error().code() != KafkaError._PARTITION_EOF:
             LOGGER.info(msg.error())

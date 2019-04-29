@@ -1,6 +1,5 @@
 import logging
 import re
-from arborist.cache import CacheList
 
 LOGGER = logging.getLogger('arborist')
 
@@ -44,12 +43,11 @@ class StreamRules(object):
 
     #     return alerts
     @classmethod
-    def process(cls, cache, maxage=10, rule={}):
-        cache = CacheList()
-        cache_entries = cache.read_entries_maxage(maxage)
+    def process(cls, arbor_instance, rule={}):
+        entries = arbor_instance.get_kafka_messages(rule['name'], rule['window'])
         matches = []
         rule_regex = re.compile(rule['match_value'])
-        for entry in cache_entries:
+        for entry in entries:
             if entry['type'] == rule['message_type']:
                 message = entry['message']
                 search_result = rule_regex.search(message)

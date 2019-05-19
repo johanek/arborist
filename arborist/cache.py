@@ -1,56 +1,26 @@
-from time import time
+from redis import Redis
 import logging
-import itertools
-from threading import RLock
+from datetime import datetime
+import pickle
 LOGGER = logging.getLogger('arborist')
 
-class CacheEntry():
-    def __init__(self, value, ttl=20, expires_at=None):
-        self.value = value
-        if expires_at:
-            self.expires_at = expires_at
-        else:
-            self.expires_at = time() + ttl
-        self.created_at = time()
-        self._expired = False
+class StreamCache(object):
 
-    def expired(self, expire_clock=None):
-        if not expire_clock:
-            expire_clock = time()
-
-        if self._expired is False:
-            return (self.expires_at < expire_clock)
-        else:
-            return self._expired
-    
-    def older_than(self, ttl, expire_clock=None):
-        if not expire_clock:
-            expire_clock = time()
-
-        threshold = expire_clock - ttl
-        return self.created_at < threshold
-
-
-class CacheList():
     def __init__(self):
-        self.entries = []
-        self.lock = RLock()
-        self.oldest_offset = 0
+        self.redis = Redis()
 
-    def add_entry(self, value, ttl=20, expires_at=None):
-        with self.lock:
-            self.entries.append(CacheEntry(value, ttl, expires_at))
+    def write_to_cache(self, messages, start_time):
+        self.redis.set(
+            int(start_time.timestamp()), pickle.dumps(messages), ex=300)
+        LOGGER.info("wrote {} messages to redis for time bucket {}".format(
+            len(messages), start_time.isoformat()))
 
-    def read_entries(self, expire_clock=None):
-        with self.lock:
-            expiring_offsets = [x.value['_offset'] for x in self.entries if x.expired()]
-            if expiring_offsets:
-                self.oldest_offset = max(expiring_offsets)
-                LOGGER.info(f"Expiring offsets to {self.oldest_offset}")
-            self.entries = list(itertools.dropwhile(lambda x: x.expired(expire_clock), self.entries))
-            return self.entries
-            # return [entry.value for entry in self.entries]
-
-    def read_entries_maxage(self, maxage):
-        entries = list(itertools.dropwhile(lambda x: x.older_than(maxage), self.read_entries()))
-        return [entry.value for entry in entries]
+    def read_from_cache(self, name, window):
+        LOGGER.info("called read_from_cache {} {}".format(name, window))
+        start_time = int(datetime.now().timestamp()) - window - 10
+        messages = []
+        for key in self.redis.keys():
+            if int(key) > start_time:
+                data = self.redis.get(key)
+                messages = messages + pickle.loads(data)
+        return messages

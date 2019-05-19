@@ -12,11 +12,10 @@ import schedule
 import os
 from confluent_kafka import Producer, Consumer, KafkaError, TopicPartition
 import yaml
-from redis import Redis
-import pickle
 
 import arborist.cli as cli
 from arborist.rules_engine import StreamRules
+from arborist.cache import StreamCache
 
 LOGGER = logging.getLogger('arborist')
 
@@ -37,7 +36,7 @@ class Arborist(object):
             }
         })
         self.consumer.subscribe(self.config['log_consumer_topics'])
-        self.redis = Redis()
+        self.cache = StreamCache()
         # self.producer = Producer(
         #     {'bootstrap.servers': ",".join(self.config['kafka_servers'])})
 
@@ -48,7 +47,7 @@ class Arborist(object):
 
     def kafka_worker(self):
         ''' Main thread to constantly consume and process records '''
-        LOGGER.info('starting arborist worker')
+        LOGGER.info('starting arborist kafka worker')
         consumer = Consumer({
             'bootstrap.servers':
             ",".join(self.config['kafka_servers']),
@@ -82,28 +81,12 @@ class Arborist(object):
                 running = False
 
             if datetime.now() > end_time:
-                self.write_to_cache(message_bucket, start_time)
+                self.cache.write_to_cache(message_bucket, start_time)
                 start_time = end_time
                 end_time = start_time + timedelta(seconds=10)
                 message_bucket = []
 
         LOGGER.info('Arborist worker finished')
-
-    def write_to_cache(self, messages, start_time):
-        self.redis.set(
-            int(start_time.timestamp()), pickle.dumps(messages), ex=300)
-        LOGGER.info("wrote {} messages to redis for time bucket {}".format(
-            len(messages), start_time.isoformat()))
-
-    def read_from_cache(self, name, window):
-        LOGGER.info("called read_from_cache {} {}".format(name, window))
-        start_time = int(datetime.now().timestamp()) - window
-        messages = []
-        for key in self.redis.keys():
-            if int(key) > start_time:
-                data = self.redis.get(key)
-                messages = messages + pickle.loads(data)
-        return messages
 
     def roundTime(self, dt=None, roundTo=60):
         """Round a datetime object to any time lapse in seconds
@@ -116,9 +99,13 @@ class Arborist(object):
         rounding = (seconds + roundTo / 2) // roundTo * roundTo
         return dt + timedelta(0, rounding - seconds, -dt.microsecond)
 
+    def run_threaded(self, job_func, args):
+        job_thread = Thread(target=job_func, args=[args])
+        job_thread.start()
+
     def rules_worker(self, rule_config):
         schedule.every(rule_config['interval']).seconds.do(
-            StreamRules.process, arbor_instance=self, rule=rule_config)
+            StreamRules.process, rule=rule_config)
         while True:
             schedule.run_pending()
             sleep(0.1)
@@ -145,10 +132,8 @@ if __name__ == "__main__":
         filename = '{}/{}'.format(rule_path, file)
         with open(filename, 'r') as file:
             rule_config = yaml.load(file, Loader=yaml.FullLoader)
-            rule_threads[rule_config['name']] = Thread(
-                target=arbor.rules_worker, args=[rule_config])
-            rule_threads[rule_config['name']].daemon = True
-            rule_threads[rule_config['name']].start()
+            schedule.every(rule_config['interval']).seconds.do(arbor.run_threaded, StreamRules.process, rule_config)
 
     while True:
+        schedule.run_pending()
         sleep(0.1)

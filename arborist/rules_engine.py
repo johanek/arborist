@@ -1,5 +1,6 @@
 import logging
 import re
+from arborist.cache import StreamCache
 
 LOGGER = logging.getLogger('arborist')
 
@@ -43,8 +44,10 @@ class StreamRules(object):
 
     #     return alerts
     @classmethod
-    def process(cls, arbor_instance, rule={}):
-        entries = arbor_instance.read_from_cache(rule['name'], rule['window'])
+    def process(cls, rule={}):
+        cache = StreamCache()
+
+        entries = cache.read_from_cache(rule['name'], rule['window'])
         matches = []
         rule_regex = re.compile(rule['match_value'])
         for entry in entries:
@@ -57,4 +60,4 @@ class StreamRules(object):
 
         for match in matches:
             print(rule['summary'].format(*match['_regex_matches']))
-        LOGGER.info(f"Matched {len(matches)} for rule {rule['name']}")
+        LOGGER.info(f"Matched {len(matches)} from {len(entries)} for rule {rule['name']}")

@@ -44,7 +44,7 @@ class StreamRules(object):
     #     return alerts
     @classmethod
     def process(cls, arbor_instance, rule={}):
-        entries = arbor_instance.get_kafka_messages(rule['name'], rule['window'])
+        entries = arbor_instance.read_from_cache(rule['name'], rule['window'])
         matches = []
         rule_regex = re.compile(rule['match_value'])
         for entry in entries:

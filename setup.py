@@ -19,13 +19,14 @@ setup(
     url='https://github.com/johanek/arborist.git',
     license=license,
     packages=find_packages(exclude=('tests', 'docs')),
-    scripts=['bin/test'],
+    # scripts=['bin/test'],
     install_requires=[
         'confluent-kafka',
         'ujson',
         'voluptuous',
         'pyyaml',
-        'schedule'
+        'schedule',
+        'redis'
     ],
     setup_requires=[
         'pytest-runner',

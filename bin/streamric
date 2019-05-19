@@ -8,6 +8,7 @@ import os
 import yaml
 
 import streamric.cli as cli
+import streamric.util as util
 from streamric import Stream
 from streamric.rules_engine import StreamRules
 
@@ -33,7 +34,7 @@ if __name__ == "__main__":
         filename = '{}/{}'.format(rule_path, file)
         with open(filename, 'r') as file:
             rule_config = yaml.load(file, Loader=yaml.FullLoader)
-            schedule.every(rule_config['interval']).seconds.do(stream.run_threaded, StreamRules.process, rule_config)
+            schedule.every(rule_config['interval']).seconds.do(util.run_threaded, StreamRules.process, rule_config)
 
     while True:
         schedule.run_pending()

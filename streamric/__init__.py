@@ -1,20 +1,13 @@
 ''' Streamric '''
 
-import socket
 import logging
-from time import sleep, time, gmtime
 from datetime import datetime, timedelta
 import ujson as json
-import re
-from threading import Thread, RLock
-import sys
-import schedule
-import os
+from threading import Thread
 from confluent_kafka import Consumer, KafkaError, TopicPartition
-import yaml
 
-import streamric.cli as cli
 from streamric.cache import StreamCache
+import streamric.util as util
 
 LOGGER = logging.getLogger('streamric')
 
@@ -56,7 +49,7 @@ class Stream(object):
         consumer.subscribe(self.config['log_consumer_topics'])
 
         running = True
-        start_time = self.roundTime(datetime.now(), 10)
+        start_time = util.roundTime(datetime.now(), 10)
         end_time = start_time + timedelta(seconds=10)
         message_bucket = []
         while running:
@@ -83,18 +76,3 @@ class Stream(object):
                 message_bucket = []
 
         LOGGER.info('streamric worker finished')
-
-    def roundTime(self, dt=None, roundTo=60):
-        """Round a datetime object to any time lapse in seconds
-        dt : datetime.datetime object, default now.
-        roundTo : Closest number of seconds to round to, default 1 minute.
-        Author: Thierry Husson 2012 - Use it as you want but don't blame me.
-        """
-        if dt == None: dt = datetime.now()
-        seconds = (dt.replace(tzinfo=None) - dt.min).seconds
-        rounding = (seconds + roundTo / 2) // roundTo * roundTo
-        return dt + timedelta(0, rounding - seconds, -dt.microsecond)
-
-    def run_threaded(self, job_func, args):
-        job_thread = Thread(target=job_func, args=[args])
-        job_thread.start()

@@ -19,7 +19,7 @@ setup(
     url='https://github.com/johanek/streamric.git',
     license=license,
     packages=find_packages(exclude=('tests', 'docs')),
-    # scripts=['bin/test'],
+    scripts=['bin/streamric'],
     install_requires=[
         'confluent-kafka',
         'ujson',

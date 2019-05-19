@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+
+import logging
+from time import gmtime, sleep
+import schedule
+import sys
+import os
+import yaml
+
+import streamric.cli as cli
+from streamric import Stream
+from streamric.rules_engine import StreamRules
+
+
+if __name__ == "__main__":
+    # Logging
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s %(levelname)s %(message)s',
+        datefmt='%Y-%m-%dT%H:%M:%SZ')
+    logging.Formatter.converter = gmtime
+    LOGGER = logging.getLogger('streamric')
+
+    # Config
+    config = cli.getconfig(sys.argv[1:])
+    stream = Stream(config=config)
+
+    # Rules
+    rule_path = 'rules'
+    rule_files = os.listdir(rule_path)
+    rule_threads = {}
+    for file in rule_files:
+        filename = '{}/{}'.format(rule_path, file)
+        with open(filename, 'r') as file:
+            rule_config = yaml.load(file, Loader=yaml.FullLoader)
+            schedule.every(rule_config['interval']).seconds.do(stream.run_threaded, StreamRules.process, rule_config)
+
+    while True:
+        schedule.run_pending()
+        sleep(0.1)

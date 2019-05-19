@@ -5,11 +5,11 @@ import sys
 import yaml
 from voluptuous import Schema, Required, MultipleInvalid
 
+
 def getconfig(argv):
     ''' process command line arguments '''
     try:
-        opts, _ = getopt.getopt(
-            argv, "c:h", ['config', 'help'])  # pylint: disable=unused-variable
+        opts, _ = getopt.getopt(argv, "c:h", ['config', 'help'])  # pylint: disable=unused-variable
         if not opts:
             raise SystemExit(usage())
     except getopt.GetoptError:

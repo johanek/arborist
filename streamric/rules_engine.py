@@ -4,6 +4,7 @@ from streamric.cache import StreamCache
 
 LOGGER = logging.getLogger('streamric')
 
+
 class StreamRules(object):
 
     # @classmethod
@@ -60,4 +61,6 @@ class StreamRules(object):
 
         for match in matches:
             print(rule['summary'].format(*match['_regex_matches']))
-        LOGGER.info(f"Matched {len(matches)} from {len(entries)} for rule {rule['name']}")
+        LOGGER.info(
+            f"Matched {len(matches)} from {len(entries)} for rule {rule['name']}"
+        )

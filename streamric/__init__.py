@@ -11,6 +11,7 @@ import streamric.util as util
 
 LOGGER = logging.getLogger('streamric')
 
+
 class Stream(object):
     ''' main streamric class'''
 

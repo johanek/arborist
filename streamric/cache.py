@@ -4,8 +4,8 @@ from datetime import datetime
 import pickle
 LOGGER = logging.getLogger('streamric')
 
-class StreamCache(object):
 
+class StreamCache(object):
     def __init__(self):
         self.redis = Redis()
 

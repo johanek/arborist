@@ -13,6 +13,7 @@ def roundTime(dt=None, roundTo=60):
     rounding = (seconds + roundTo / 2) // roundTo * roundTo
     return dt + timedelta(0, rounding - seconds, -dt.microsecond)
 
+
 def run_threaded(job_func, args):
     ''' Wrapper to run a job in a thread '''
     job_thread = Thread(target=job_func, args=[args])

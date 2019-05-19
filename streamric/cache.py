@@ -2,7 +2,7 @@ from redis import Redis
 import logging
 from datetime import datetime
 import pickle
-LOGGER = logging.getLogger('arborist')
+LOGGER = logging.getLogger('streamric')
 
 class StreamCache(object):
 

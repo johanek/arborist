@@ -10,13 +10,13 @@ with open('LICENSE') as f:
     license = f.read()
 
 setup(
-    name='arborist',
+    name='streamric',
     version='0.0.1',
     description='Log based alerting',
     long_description=readme,
     author='Johan van den Dorpe',
     author_email='johan@johan.org.uk',
-    url='https://github.com/johanek/arborist.git',
+    url='https://github.com/johanek/streamric.git',
     license=license,
     packages=find_packages(exclude=('tests', 'docs')),
     # scripts=['bin/test'],

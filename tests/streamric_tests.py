@@ -1,7 +1,7 @@
 ''' Tests for XXX '''
 
 
-from arborist import Arborist
+from streamric.processor import Stream
 
 CONFIG = {
         'kafka_servers': ['kafka1'],
@@ -11,7 +11,7 @@ CONFIG = {
     }
 
 def test_config():
-    instance = Arborist(CONFIG)
+    instance = Stream(CONFIG)
     assert instance
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4

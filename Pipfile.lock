@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3f0278c045176c5be3e6d74309c2c088a8b1444d91df7fbab411f79ba6ccbef6"
+            "sha256": "d674a1dd06af9a8d343fd9c4139a6642bccc31dc9c75af8369f9554a40caa6c1"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,10 +16,6 @@
         ]
     },
     "default": {
-        "arborist": {
-            "editable": true,
-            "path": "."
-        },
         "confluent-kafka": {
             "hashes": [
                 "sha256:0043e55c7763f8c9658e46545a21a01dc42208f4d0c6b1c293a21c3ed564c9f6",
@@ -80,6 +76,10 @@
                 "sha256:f9fb5181283de4db6e701d476dd01b6a3dd81c38462a54991ddbb9d26db857c9"
             ],
             "version": "==0.6.0"
+        },
+        "streamric": {
+            "editable": true,
+            "path": "."
         },
         "ujson": {
             "hashes": [

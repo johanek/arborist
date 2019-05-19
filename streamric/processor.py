@@ -1,4 +1,4 @@
-''' Arborist '''
+''' Streamric '''
 
 import socket
 import logging
@@ -13,15 +13,15 @@ import os
 from confluent_kafka import Producer, Consumer, KafkaError, TopicPartition
 import yaml
 
-import arborist.cli as cli
-from arborist.rules_engine import StreamRules
-from arborist.cache import StreamCache
+import streamric.cli as cli
+from streamric.rules_engine import StreamRules
+from streamric.cache import StreamCache
 
-LOGGER = logging.getLogger('arborist')
+LOGGER = logging.getLogger('streamric')
 
 
-class Arborist(object):
-    ''' main arborist class'''
+class Stream(object):
+    ''' main streamric class'''
 
     def __init__(self, config):
         self.config = config
@@ -47,7 +47,7 @@ class Arborist(object):
 
     def kafka_worker(self):
         ''' Main thread to constantly consume and process records '''
-        LOGGER.info('starting arborist kafka worker')
+        LOGGER.info('starting streamric kafka worker')
         consumer = Consumer({
             'bootstrap.servers':
             ",".join(self.config['kafka_servers']),
@@ -86,7 +86,7 @@ class Arborist(object):
                 end_time = start_time + timedelta(seconds=10)
                 message_bucket = []
 
-        LOGGER.info('Arborist worker finished')
+        LOGGER.info('streamric worker finished')
 
     def roundTime(self, dt=None, roundTo=60):
         """Round a datetime object to any time lapse in seconds
@@ -118,11 +118,11 @@ if __name__ == "__main__":
         format='%(asctime)s %(levelname)s %(message)s',
         datefmt='%Y-%m-%dT%H:%M:%SZ')
     logging.Formatter.converter = gmtime
-    LOGGER = logging.getLogger('arborist')
+    LOGGER = logging.getLogger('streamric')
 
     # Config
     config = cli.getconfig(sys.argv[1:])
-    arbor = Arborist(config=config)
+    stream = Stream(config=config)
 
     # Rules
     rule_path = 'rules'
@@ -132,7 +132,7 @@ if __name__ == "__main__":
         filename = '{}/{}'.format(rule_path, file)
         with open(filename, 'r') as file:
             rule_config = yaml.load(file, Loader=yaml.FullLoader)
-            schedule.every(rule_config['interval']).seconds.do(arbor.run_threaded, StreamRules.process, rule_config)
+            schedule.every(rule_config['interval']).seconds.do(stream.run_threaded, StreamRules.process, rule_config)
 
     while True:
         schedule.run_pending()

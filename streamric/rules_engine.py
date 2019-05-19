@@ -1,8 +1,8 @@
 import logging
 import re
-from arborist.cache import StreamCache
+from streamric.cache import StreamCache
 
-LOGGER = logging.getLogger('arborist')
+LOGGER = logging.getLogger('streamric')
 
 class StreamRules(object):
 

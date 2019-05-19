@@ -1,4 +1,4 @@
-# Arborist
+# Streamric
 
 ## What is this?
 

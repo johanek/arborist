@@ -5,7 +5,6 @@ import sys
 import yaml
 from voluptuous import Schema, Required, MultipleInvalid
 
-
 def getconfig(argv):
     ''' process command line arguments '''
     try:
@@ -57,7 +56,7 @@ def usage():
     ''' usage info '''
     output = """
 Usage:
-  arborist -c configfile
+  streamric -c configfile
 
 Options:
   -c <configfile>   Read config from configfile"""

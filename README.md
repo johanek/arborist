@@ -2,4 +2,4 @@
 
 ## What is this?
 
-WIP
+Generate alerts from a stream of logs read from Kafka
